@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarbonLens AI</title>
+    <style>
+        :root {
+            --bg: #07111f;
+            --card: #101c2f;
+            --card-2: #16253b;
+            --text: #e8f1ff;
+            --muted: #8ea2bf;
+            --accent: #31c48d;
+            --accent-2: #5da7ff;
+            --warn: #ffb84d;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #07111f, #13253f);
+            color: var(--text);
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            background: rgba(16, 28, 47, 0.95);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+            padding: 28px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            margin: 0 0 8px;
+            font-size: 2.2rem;
+        }
+
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: var(--card);
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+
+        .panel h2, .panel h3 { margin-top: 0; }
+
+        label { display: block; margin: 8px 0 6px; color: var(--muted); }
+        input, select {
+            width: 100%;
+            padding: 11px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: #0d1728;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        button {
+            width: 100%;
+            border: none;
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            transition: transform 0.15s ease;
+        }
+
+        button:hover { transform: translateY(-1px); }
+
+        .secondary { background: linear-gradient(90deg, #3f556f, #4a6987); }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .card {
+            background: linear-gradient(135deg, var(--card-2), #1c2c42);
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .card .value { font-size: 1.3rem; font-weight: 700; margin-top: 5px; }
+
+        #avatar { font-size: 84px; text-align: center; margin: 12px 0; }
+
+        .status-box, .result-box, .analysis-box, .future-box, .route-box {
+            margin-top: 12px;
+            padding: 14px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            line-height: 1.5;
+        }
+
+        .muted { color: var(--muted); }
+        .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: rgba(49,196,141,0.15); color: #8ef1c0; margin-top: 6px; }
+
+        .inline-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .small { font-size: 0.95rem; }
+
+        @media (max-width: 850px) {
+            .grid { grid-template-columns: 1fr; }
+            .cards { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="hero">
+        <h1>🌍 CarbonLens AI</h1>
+        <p>Turn daily habits into smarter, lower-carbon choices with instant insights and route-aware suggestions.</p>
+    </div>
+
+    <div class="grid">
+        <div>
+            <div class="panel">
+                <h2>📊 Your Footprint</h2>
+
+                <div class="inline-row">
+                    <div>
+                        <label>Vehicle Type</label>
+                        <select id="vehicle">
+                            <option value="0.21">Car</option>
+                            <option value="0.08">Bike</option>
+                            <option value="0.05">Bus</option>
+                            <option value="0.03">Metro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Distance (km)</label>
+                        <input type="number" id="distance" placeholder="e.g. 20">
+                    </div>
+                </div>
+
+                <label>Units Consumed</label>
+                <input type="number" id="units" placeholder="e.g. 250">
+
+                <label>Food Type</label>
+                <select id="food">
+                    <option value="1.5">Vegetarian</option>
+                    <option value="5">Chicken</option>
+                    <option value="12">Mutton</option>
+                    <option value="4">Fish</option>
+                </select>
+                <label class="muted small">Food Photo Helper</label>
+                <input type="file" id="foodFile" accept="image/*">
+                <button type="button" onclick="analyzeFoodImage()" class="secondary">Analyze Food Image</button>
+                <div id="foodStatus" class="status-box small"></div>
+
+                <button onclick="calculateCarbon()">Calculate Carbon Footprint</button>
+
+                <div id="avatar">🌳</div>
+
+                <div class="cards">
+                    <div class="card">🚗 Transport <div class="value" id="transportCard">0.00</div></div>
+                    <div class="card">⚡ Electricity <div class="value" id="electricityCard">0.00</div></div>
+                    <div class="card">🍔 Food <div class="value" id="foodCard">0.00</div></div>
+                    <div class="card">🌍 Total <div class="value" id="totalCard">0.00</div></div>
+                </div>
+
+                <div id="result" class="result-box"></div>
+            </div>
+
+            <div class="panel">
+                <h3>📄 OCR Bill Upload</h3>
+                <input type="file" id="billFile" accept="image/*">
+                <button type="button" onclick="uploadBill()" class="secondary">Upload Bill</button>
+                <div id="ocrStatus" class="status-box small"></div>
+            </div>
+
+            <div class="panel">
+                <h3>🍽️ Food Photo Analyzer</h3>
+                <input type="file" id="foodFile" accept="image/*">
+                <button type="button" onclick="analyzeFoodImage()" class="secondary">Analyze Food Image</button>
+                <div id="foodStatus" class="status-box small"></div>
+            </div>
+        </div>
+
+        <div>
+            <div class="panel">
+                <h2>✨ Smart Recommendations</h2>
+                <button onclick="analyzeFootprint()">AI Recommendation</button>
+                <div id="analysis" class="analysis-box"></div>
+                <button onclick="simulateFuture()" class="secondary" style="margin-top:10px;">Future Simulator</button>
+                <div id="future" class="future-box"></div>
+            </div>
+
+            <div class="panel">
+                <h2>�️ Daily Route Baseline</h2>
+                <label>Routine Start</label>
+                <input id="routineOrigin" placeholder="Home or office">
+                <label>Routine Destination</label>
+                <input id="routineDestination" placeholder="Your usual daily stop">
+                <label>Default Vehicle</label>
+                <select id="routineVehicle">
+                    <option value="0.21">Car</option>
+                    <option value="0.08">Bike</option>
+                    <option value="0.05">Bus</option>
+                    <option value="0.03">Metro</option>
+                </select>
+                <button onclick="saveRoutine()">Save Daily Routine</button>
+                <div id="routineStatus" class="status-box small"></div>
+            </div>
+
+            <div class="panel">
+                <h2>🧭 Weekly Travel Deviation</h2>
+                <label>Today From</label>
+                <input id="deviationOrigin" placeholder="Where you started today">
+                <label>Today To</label>
+                <input id="deviationDestination" placeholder="Where you went today">
+                <label>Vehicle Used</label>
+                <select id="deviationVehicle">
+                    <option value="0.21">Car</option>
+                    <option value="0.08">Bike</option>
+                    <option value="0.05">Bus</option>
+                    <option value="0.03">Metro</option>
+                </select>
+                <label>Detected Distance (km)</label>
+                <input id="deviationDistance" placeholder="Distance from Google Maps">
+                <button onclick="checkDeviation()">Check Today’s Trip</button>
+                <button onclick="addDeviationTrip()" class="secondary" style="margin-top:10px;">Add This Trip</button>
+                <div id="deviationStatus" class="route-box"></div>
+            </div>
+
+            <div class="panel">
+                <h2>�🗺️ Eco Route Planner</h2>
+                <label>From</label>
+                <input id="origin" placeholder="TKR College">
+                <label>To</label>
+                <input id="destination" placeholder="Nampally">
+                <button onclick="estimateRoute()">Find Eco Route</button>
+                <div id="routeResult" class="route-box"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
